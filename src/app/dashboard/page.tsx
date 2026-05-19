@@ -15,11 +15,17 @@ export default async function DashboardPage({
   const session = await auth();
   if (!session?.user) redirect('/login');
 
-  const orders = await prisma.order.findMany({
-    where: { userId: session.user.id },
-    include: { project: { select: { title: true, slug: true, coverImage: true } } },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [orders, currentUser] = await Promise.all([
+    prisma.order.findMany({
+      where: { userId: session.user.id },
+      include: { project: { select: { title: true, slug: true, coverImage: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { createdAt: true },
+    }),
+  ]);
 
   const purchased = orders.filter((o) => o.status === 'PAID');
 
@@ -45,7 +51,7 @@ export default async function DashboardPage({
         <div className="grid md:grid-cols-3 gap-6 mt-12 mb-16">
           <Stat label="Orders" value={orders.length} />
           <Stat label="Owned" value={purchased.length} />
-          <Stat label="Member since" value={new Date(session.user.id ? Date.now() : 0).getFullYear()} small />
+          <Stat label="Member since" value={currentUser ? new Date(currentUser.createdAt).getFullYear() : '—'} small />
         </div>
 
         <h2 className="font-display text-3xl mb-6">Your library</h2>

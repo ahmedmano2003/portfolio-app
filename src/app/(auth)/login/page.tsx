@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get('callbackUrl') || '/dashboard';
+  const raw = params.get('callbackUrl') || '/dashboard';
+  const callbackUrl = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +42,45 @@ export default function LoginPage() {
   }
 
   return (
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <div>
+        <label className="text-xs uppercase tracking-widest text-ink/60">Email</label>
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="input-field"
+          placeholder="you@example.com"
+        />
+      </div>
+      <div>
+        <label className="text-xs uppercase tracking-widest text-ink/60">Password</label>
+        <input
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="input-field"
+          placeholder="••••••••••"
+        />
+      </div>
+
+      {error && (
+        <div className="text-sm text-rust border-l-2 border-rust pl-3 py-1">{error}</div>
+      )}
+
+      <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+        {loading ? 'Signing in...' : 'Sign in →'}
+      </button>
+    </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <main className="min-h-screen flex">
       <div className="hidden md:flex md:w-1/2 bg-ink text-bone p-12 flex-col justify-between">
         <Link href="/" className="font-display text-2xl">
@@ -63,40 +103,9 @@ export default function LoginPage() {
             Welcome <span className="italic">back</span>.
           </h1>
 
-          <form onSubmit={onSubmit} className="space-y-6" noValidate>
-            <div>
-              <label className="text-xs uppercase tracking-widest text-ink/60">Email</label>
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="text-xs uppercase tracking-widest text-ink/60">Password</label>
-              <input
-                type="password"
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
-                placeholder="••••••••••"
-              />
-            </div>
-
-            {error && (
-              <div className="text-sm text-rust border-l-2 border-rust pl-3 py-1">{error}</div>
-            )}
-
-            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
-              {loading ? 'Signing in...' : 'Sign in →'}
-            </button>
-          </form>
+          <Suspense fallback={<div className="text-ink/50 text-sm">Loading form...</div>}>
+            <LoginForm />
+          </Suspense>
 
           <p className="mt-8 text-sm text-ink/60">
             New here?{' '}

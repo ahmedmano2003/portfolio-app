@@ -1,7 +1,8 @@
 import { prisma } from './db';
+import crypto from 'crypto';
 
 export function hashIp(ip: string): string {
-  return Buffer.from(ip).toString('base64').slice(0, 32);
+  return crypto.createHash('sha256').update(ip).digest('hex').slice(0, 32);
 }
 
 export async function isRateLimited(email: string, ipHash: string): Promise<boolean> {
@@ -22,6 +23,14 @@ export async function recordLoginAttempt(email: string, ipHash: string, success:
 }
 
 const apiHits = new Map<string, { count: number; resetAt: number }>();
+
+// تنظيف الإدخالات المنتهية كل 5 دقائق لمنع memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of apiHits) {
+    if (entry.resetAt < now) apiHits.delete(key);
+  }
+}, 5 * 60 * 1000).unref();
 
 export function checkApiRateLimit(key: string, limit = 30, windowMs = 60_000): { ok: boolean; remaining: number } {
   const now = Date.now();

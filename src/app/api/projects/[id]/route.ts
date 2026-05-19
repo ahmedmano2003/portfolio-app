@@ -47,6 +47,11 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
 
   try {
+    const ordersCount = await prisma.order.count({ where: { projectId: id } });
+    if (ordersCount > 0) {
+      return errorResponse(`مش ممكن تحذف المشروع ده — عليه ${ordersCount} أوردر`, 409);
+    }
+
     await prisma.project.delete({ where: { id } });
     return successResponse({ ok: true });
   } catch (err: any) {

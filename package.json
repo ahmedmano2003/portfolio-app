@@ -2,6 +2,7 @@
   "name": "portfolio-app",
   "version": "1.0.0",
   "private": true,
+  "engines": { "node": ">=20.0.0" },
   "installCommand": "npm install --legacy-peer-deps",
   "scripts": {
     "dev": "next dev",
@@ -20,7 +21,7 @@
     "clsx": "^2.1.1",
     "isomorphic-dompurify": "^2.16.0",
     "next": "^16.2.6",
-    "next-auth": "^4.24.14",
+    "next-auth": "^5.0.0-beta.31",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sharp": "^0.33.5",

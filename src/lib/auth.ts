@@ -4,7 +4,6 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { prisma } from './db';
 import { loginSchema } from './validations';
-import { recordLoginAttempt, isRateLimited, hashIp } from './rate-limit';
 
 /**
  * إعدادات الـ Authentication
@@ -24,7 +23,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials, req) {
-        // ✅ Validate input بـ Zod - يحمي من injection و malformed data
+        // dynamic import — يمنع تحميل crypto في Edge Runtime (middleware)
+        const { recordLoginAttempt, isRateLimited, hashIp } = await import('./rate-limit');
+
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
 

@@ -1,13 +1,18 @@
 import { prisma } from './db';
 
-// Web Crypto API — available in both Node.js 18+ and Edge Runtime
 export async function hashIp(ip: string): Promise<string> {
-  const data = new TextEncoder().encode(ip);
-  const buf = await globalThis.crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-    .slice(0, 32);
+  if (globalThis.crypto?.subtle) {
+    // Web Crypto API — Edge Runtime + Node.js 18+
+    const data = new TextEncoder().encode(ip);
+    const buf = await globalThis.crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+      .slice(0, 32);
+  }
+  // Node.js < 18 fallback
+  const { createHash } = await import('crypto');
+  return createHash('sha256').update(ip).digest('hex').slice(0, 32);
 }
 
 export async function isRateLimited(email: string, ipHash: string): Promise<boolean> {

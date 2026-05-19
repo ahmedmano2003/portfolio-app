@@ -6,7 +6,7 @@ import { errorResponse, successResponse, getClientIp } from '@/lib/utils';
 import { checkApiRateLimit, hashIp } from '@/lib/rate-limit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-02-24.acacia' as any,
   typescript: true,
 });
 
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
   // ✅ Rate limit
   const ip = getClientIp(req.headers);
-  const limit = checkApiRateLimit(`payment:${hashIp(ip)}`, 10, 60 * 60 * 1000);
+  const limit = checkApiRateLimit(`payment:${await hashIp(ip)}`, 10, 60 * 60 * 1000);
   if (!limit.ok) return errorResponse('محاولات كتير', 429);
 
   let body: unknown;

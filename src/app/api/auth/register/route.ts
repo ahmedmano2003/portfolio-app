@@ -8,7 +8,7 @@ import { hashIp } from '@/lib/rate-limit';
 export async function POST(req: Request) {
   // ✅ Rate limit - 5 محاولات تسجيل في الساعة من نفس IP
   const ip = getClientIp(req.headers);
-  const limit = checkApiRateLimit(`register:${hashIp(ip)}`, 5, 60 * 60 * 1000);
+  const limit = checkApiRateLimit(`register:${await hashIp(ip)}`, 5, 60 * 60 * 1000);
   if (!limit.ok) {
     return errorResponse('محاولات كتير، حاول بعد شوية', 429);
   }

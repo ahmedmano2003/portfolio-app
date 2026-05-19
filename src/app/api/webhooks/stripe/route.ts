@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { prisma } from '@/lib/db';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-02-24.acacia' as any,
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -60,6 +60,3 @@ export async function POST(req: Request) {
     return new Response('Handler error', { status: 500 });
   }
 }
-
-// ✅ Stripe محتاج الـ raw body مش parsed
-export const config = { api: { bodyParser: false } };

@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
   // ✅ Rate limit إضافي
   const ip = getClientIp(req.headers);
-  const limit = checkApiRateLimit(`projects:create:${hashIp(ip)}`, 20, 60_000);
+  const limit = checkApiRateLimit(`projects:create:${await hashIp(ip)}`, 20, 60_000);
   if (!limit.ok) return errorResponse('كتير، استنى', 429);
 
   let body: unknown;

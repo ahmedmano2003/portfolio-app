@@ -7,7 +7,7 @@ import { checkApiRateLimit, hashIp } from '@/lib/rate-limit';
 export async function POST(req: Request) {
   // ✅ Rate limit صارم - 3 رسائل في 10 دقائق من نفس IP
   const ip = getClientIp(req.headers);
-  const ipHash = hashIp(ip);
+  const ipHash = await hashIp(ip);
   const limit = checkApiRateLimit(`contact:${ipHash}`, 3, 10 * 60 * 1000);
   if (!limit.ok) return errorResponse('بعت رسايل كتير، استنى شوية', 429);
 

@@ -33,7 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           req?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ||
           req?.headers?.get('x-real-ip') ||
           'unknown';
-        const ipHash = hashIp(ip);
+        const ipHash = await hashIp(ip);
 
         // ✅ Rate limiting - حماية من brute force
         const limited = await isRateLimited(email, ipHash);

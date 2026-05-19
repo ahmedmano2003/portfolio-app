@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
   // ✅ IP-based extra layer
   const ip = getClientIp(req.headers);
-  const ipLimit = checkApiRateLimit(`upload-ip:${hashIp(ip)}`, 20, 60 * 60 * 1000);
+  const ipLimit = checkApiRateLimit(`upload-ip:${await hashIp(ip)}`, 20, 60 * 60 * 1000);
   if (!ipLimit.ok) return errorResponse('كتير', 429);
 
   try {
@@ -32,6 +32,3 @@ export async function POST(req: Request) {
     return errorResponse(err.message || 'فشل الرفع', 400);
   }
 }
-
-// ✅ Disable body size parser - عشان نتحكم من upload.ts
-export const config = { api: { bodyParser: false } };
